@@ -1,4 +1,23 @@
 /*
+	Forked "version 0.4.5": "https://github.com/webpack/html-loader#readme"
+
+	Why fork?
+	This plugin generates random sequences in 'randomIndent()' and injects them into html file before minification.
+	After that it tries to replace them back, and if it can't find a value to replace them with,
+	it will leave this random sequences inside html file.
+	So, the problem is with empty attributes, like this:
+	<img src="" /> or <use xlink:href="" />
+	This will be converted into smth like that:
+	<img src="xxxHTMLLINKxxx0.3904839583598340.3453454353" /> or <use xlink:href="xxxHTMLLINKxxx0.3904839583598340.3453454353" />
+
+	This is bad, because link is invalid. And moreover, NEW CONTENTHASH will be calculated at EVERY BUILD,
+	even if chunk was not changed by developer.
+	So, i tried to fix that :)
+
+	Changed lines are marked with comment: // added this line
+ */
+
+/*
 	MIT License http://www.opensource.org/licenses/mit-license.php
 	Author Tobias Koppers @sokra
 */
@@ -45,14 +64,16 @@ module.exports = function(content) {
 	var data = {};
 	content = [content];
 	links.forEach(function(link) {
-		if(!loaderUtils.isUrlRequest(link.value, root)) return;
+		if (link.value) { // added this line
+			if(!loaderUtils.isUrlRequest(link.value, root)) return;
 
-		var uri = url.parse(link.value);
-		if (uri.hash !== null && uri.hash !== undefined) {
-			uri.hash = null;
-			link.value = uri.format();
-			link.length = link.value.length;
-		}
+			var uri = url.parse(link.value);
+			if (uri.hash !== null && uri.hash !== undefined) {
+				uri.hash = null;
+				link.value = uri.format();
+				link.length = link.value.length;
+			}
+		} // added this line
 
 		do {
 			var ident = randomIdent();
@@ -134,6 +155,7 @@ module.exports = function(content) {
 	}
 
  	return exportsString + content.replace(/xxxHTMLLINKxxx[0-9\.]+xxx/g, function(match) {
+ 		if (data[match] === '') return ''; // added this line
 		if(!data[match]) return match;
 		return '" + require(' + JSON.stringify(loaderUtils.urlToRequest(data[match], root)) + ') + "';
 	}) + ";";
