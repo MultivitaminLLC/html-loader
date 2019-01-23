@@ -1,6 +1,6 @@
 {
   "name": "@rtb/html-loader",
-  "version": "0.4.6",
+  "version": "0.4.7",
   "author": "Tobias Koppers @sokra",
   "description": "html loader module for webpack",
   "dependencies": {
