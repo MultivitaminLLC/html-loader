@@ -1,5 +1,5 @@
 {
-  "name": "html-loader",
+  "name": "@rtb/html-loader",
   "version": "0.4.6",
   "author": "Tobias Koppers @sokra",
   "description": "html loader module for webpack",
@@ -9,6 +9,9 @@
     "html-minifier": "^3.0.1",
     "loader-utils": "^1.0.2",
     "object-assign": "^4.1.0"
+  },
+  "publishConfig": {
+    "registry": "https://nexus3.devrtb.com/repository/npm-hosted/"
   },
   "license": "MIT",
   "devDependencies": {
